@@ -1343,6 +1343,7 @@ static int conn_new(ngtcp2_conn **pconn, const ngtcp2_cid *dcid,
   (*pconn)->tx.last_max_data_ts = UINT64_MAX;
   (*pconn)->tx.pacing.next_ts = UINT64_MAX;
   (*pconn)->early.discard_started_ts = UINT64_MAX;
+  (*pconn)->do_ping = 0;
 
   conn_reset_ecn_validation_state(*pconn);
 
@@ -4186,7 +4187,7 @@ static ngtcp2_ssize conn_write_pkt(ngtcp2_conn *conn, ngtcp2_pkt_info *pi,
 
   if (!(rtb_entry_flags & NGTCP2_RTB_ENTRY_FLAG_ACK_ELICITING)) {
     if (pktns->tx.num_non_ack_pkt >= NGTCP2_MAX_NON_ACK_TX_PKT ||
-        keep_alive_expired || conn->pktns.rtb.probe_pkt_left) {
+        keep_alive_expired || conn->pktns.rtb.probe_pkt_left || !conn->do_ping) {
       lfr.type = NGTCP2_FRAME_PING;
 
       rv = conn_ppe_write_frame_hd_log(conn, ppe, &hd_logged, hd, &lfr);
@@ -4200,6 +4201,7 @@ static ngtcp2_ssize conn_write_pkt(ngtcp2_conn *conn, ngtcp2_pkt_info *pi,
           rtb_entry_flags |= NGTCP2_RTB_ENTRY_FLAG_PROBE;
         }
         pktns->tx.num_non_ack_pkt = 0;
+        conn->do_ping = 0;
       }
     } else {
       ++pktns->tx.num_non_ack_pkt;
@@ -13602,4 +13604,8 @@ uint32_t ngtcp2_select_version(const uint32_t *preferred_versions,
   }
 
   return 0;
+}
+
+void ngtcp2_conn_ping(ngtcp2_conn *conn) {
+  conn->do_ping = 1;
 }

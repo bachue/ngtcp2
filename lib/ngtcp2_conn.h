@@ -686,6 +686,7 @@ struct ngtcp2_conn {
   /* flags is bitwise OR of zero or more of NGTCP2_CONN_FLAG_*. */
   uint32_t flags;
   int server;
+  int do_ping;
 };
 
 typedef enum ngtcp2_vmsg_type {
@@ -1111,5 +1112,7 @@ void ngtcp2_conn_stop_pmtud(ngtcp2_conn *conn);
  */
 int ngtcp2_conn_set_remote_transport_params(
     ngtcp2_conn *conn, const ngtcp2_transport_params *params);
+
+void ngtcp2_conn_ping(ngtcp2_conn *conn);
 
 #endif /* NGTCP2_CONN_H */

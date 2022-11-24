@@ -5864,6 +5864,8 @@ NGTCP2_EXTERN uint32_t ngtcp2_select_version(const uint32_t *preferred_versions,
 #define ngtcp2_settings_default(SETTINGS)                                      \
   ngtcp2_settings_default_versioned(NGTCP2_SETTINGS_VERSION, (SETTINGS))
 
+NGTCP2_EXTERN void ngtcp2_conn_ping(ngtcp2_conn *conn);
+
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
